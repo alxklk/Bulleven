@@ -1,0 +1,1 @@
+g++ Main.cpp Model.cpp Renderer.cpp RTTexture.cpp Scene.cpp -ld3d11 -ld3dcompiler -std=c++17
