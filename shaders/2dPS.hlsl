@@ -48,6 +48,7 @@ float2 dot_uv(uint d, uint x, uint y)
 
 float4 main( PixelShaderInput IN ) : SV_TARGET0
 {
+	return float4(1,0,0,.5);
 	int2 iuv=IN.pos.xy/4;
 	if(iuv.y>8)
 		return float4(0,0,0,0);

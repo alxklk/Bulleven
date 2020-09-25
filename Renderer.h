@@ -48,9 +48,16 @@ public:
 
 	ID3D11Device* GetDevice()
 	{
-		if(!d3dDevice)
+		if (!d3dDevice)
 			::DebugBreak();
 		return d3dDevice;
+	}
+
+	ID3D11DeviceContext* GetDeviceContext()
+	{
+		if (!d3dDeviceContext)
+			::DebugBreak();
+		return d3dDeviceContext;
 	}
 
 	bool Init(HWND win);

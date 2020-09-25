@@ -5,8 +5,8 @@
 class CBaseModel
 {
 public:
-	virtual bool Create(ID3D11Device* device)=0;
-	virtual bool Create(ID3D11Device* device, void* vertices, int nVertices, WORD* indices, int nIndices)=0;
+	virtual bool Create(ID3D11Device* device, ID3D11DeviceContext* ctx)=0;
+	virtual bool Create(ID3D11Device* device, ID3D11DeviceContext* ctx, void* vertices, int nVertices, WORD* indices, int nIndices)=0;
 	virtual ID3D11Buffer *const GetVertexBuffer()const=0;
 	virtual ID3D11Buffer* GetIndexBuffer()const=0;
 	virtual int GetIndexCount()const=0;

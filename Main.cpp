@@ -117,21 +117,21 @@ int main(int argc, char* argv[])
 			tc[i * 4 + 3] = 0x00;
 		}
 	}
-	tex->Create(renderer->GetDevice(), fpsfontHeight, fpsfontWidth, tc);
+	tex->Create(renderer->GetDevice(), fpsfontWidth, fpsfontHeight, tc);
 
 	CScene* scene = new CScene;
 
 	static VertexPosNormCol vb[4] = {
-		{{-1,-1,0},{0,0,1},{1,0,0}},
-		{{-1,1,0},{0,0,1},{0,0,1}},
-		{{1,1,0},{0,0,1},{1,1,0}},
-		{{1,-1,0},{0,0,1},{0,1,0}},
+		{{-1,-1,0},{0,0,1},{1,1,0}},
+		{{ 1,-1,0},{0,0,1},{0,1,0}},
+		{{-1, 1,0},{0,0,1},{1,0,0}},
+		{{ 1, 1,0},{0,0,1},{0,0,0}},
 	};
 
-	static unsigned short ib[6] = { 0,1,2,0,2,3 };
+	static unsigned short ib[6] = { 0,1,2,2,1,3 };
 
 	CBaseModel* model = new CModel;
-	model->Create(renderer->GetDevice(),
+	model->Create(renderer->GetDevice(), renderer->GetDeviceContext(),
 		(VertexPosNormCol*)vb, sizeof(vb) / sizeof(VertexPosNormCol),
 		ib, sizeof(ib) / sizeof(unsigned short)
 	);
@@ -140,8 +140,8 @@ int main(int argc, char* argv[])
 	model->SetTextureView(1, 0);
 	scene->AddModel(model);
 
-	CBaseModel* overlay = new COverlay;
-	overlay->Create(renderer->GetDevice());
+	CBaseModel* overlay = new CTextOverlay;
+	overlay->Create(renderer->GetDevice(),renderer->GetDeviceContext());
 	overlay->SetTextureView(0, tex->GetShaderResourceView());
 	overlay->SetTextureView(1, 0);
 	scene->AddModel(overlay);
@@ -226,6 +226,14 @@ int main(int argc, char* argv[])
 		char s[64];
 		sprintf(s, "%f", cb_overlay.fps);
 		SetWindowText(gAppState.win, s);
+
+		CTextOverlay* text = dynamic_cast<CTextOverlay*>(overlay);
+		text->AddRect({ 0,0 }, { .5,.5 }, { 0,0 }, { 1,1 });
+		float2 mp(gAppState.lastMouseEvent.x, gAppState.lastMouseEvent.y);
+		mp.x = mp.x / 450 - 1;
+		mp.y = - mp.y / 450 + 1;
+		text->AddRect({mp.x,mp.y}, {mp.x+.1f,mp.y+.1f}, { 0,0 }, { 1,1 });
+		text->Commit();
 
 		renderer->UseShaderSetup("overlay");
 		renderer->UpdateShaderConstants((void*)&cb_overlay);

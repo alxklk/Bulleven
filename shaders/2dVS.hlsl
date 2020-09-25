@@ -21,8 +21,7 @@ struct VertexShaderOutput
 VertexShaderOutput main(AppData IN)
 {
 	VertexShaderOutput OUT;
-
-	OUT.pos = float4(IN.pos*float2(.5,.1)+float2(-.5,.9), 0.0f, 1.0f);
-	OUT.uv=IN.pos*.5+.5;
+	OUT.pos = float4(IN.pos, 0.0f, 1.0f);
+	OUT.uv = IN.uv;
 	return OUT;
 }

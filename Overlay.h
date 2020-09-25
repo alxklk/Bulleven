@@ -10,34 +10,31 @@ struct Vertex2D
 	float2 uv;
 };
 
-class COverlay : public CBaseModel
+class CTextOverlay : public CBaseModel
 {
-	ID3D11Buffer* vertexBuffer;
-	ID3D11Buffer* indexBuffer;
-	ID3D11ShaderResourceView* texture;
+	static const int SIZE = 4096;
+	int count = 0;
+	int committed = 0;
+	Vertex2D vb[SIZE * 4];
+	WORD ib[SIZE * 6];
+	ID3D11Buffer* vertexBuffer = nullptr;
+	ID3D11Buffer* indexBuffer = nullptr;
+	ID3D11ShaderResourceView* texture = nullptr;
+	ID3D11DeviceContext* devctx = nullptr;
 public:
-	virtual bool Create(ID3D11Device* device);
-	virtual bool Create(ID3D11Device* device, void* vertices, int nVertices, WORD* indices, int nIndices){return false;};
-	COverlay()
-		: vertexBuffer(nullptr)
-		, indexBuffer(nullptr)
-		, texture(nullptr)
-	{
-	}
+	virtual bool Create(ID3D11Device* device, ID3D11DeviceContext* ctx);
+	virtual bool Create(ID3D11Device* device, ID3D11DeviceContext* ctx, void* vertices, int nVertices, WORD* indices, int nIndices) { return false; };
+	CTextOverlay() = default;
 	virtual ID3D11Buffer *const GetVertexBuffer()const { return vertexBuffer; }
 	virtual ID3D11Buffer* GetIndexBuffer()const { return indexBuffer; }
-	virtual int GetIndexCount()const{return 6;};
+	virtual int GetIndexCount()const { return committed * 6; };
 	virtual int GetVertexStride()const { return sizeof(Vertex2D); }
 	virtual bool GetZEnabled()const { return false; };
 	virtual bool GetAlphaEnabled()const { return true; };
-	virtual const char* GetShaderSetup()const
-	{
-		return "overlay";
-	}
-	virtual ID3D11ShaderResourceView* GetTextureView(int n)const {return texture;}
-	virtual void SetTextureView(int n, ID3D11ShaderResourceView* textureView){};
-	void AddRect(const float2& p0, const float2& p1, const float2& t0, const float2& t1);
-	virtual ~COverlay()
-	{
-	};
+	virtual const char* GetShaderSetup()const{return "overlay";}
+	virtual ID3D11ShaderResourceView* GetTextureView(int n)const { return texture; }
+	virtual void SetTextureView(int n, ID3D11ShaderResourceView* textureView) {};
+	bool AddRect(const float2& p0, const float2& p1, const float2& t0, const float2& t1);
+	void Commit();
+	virtual ~CTextOverlay() = default;
 };

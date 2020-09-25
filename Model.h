@@ -18,8 +18,8 @@ class CModel : public CBaseModel
 	unsigned int  indexCount;
 	ID3D11ShaderResourceView* textures[16];
 public:
-	bool Create(ID3D11Device* device) override {return false;}
-	bool Create(ID3D11Device* device, void* vertices, int nVertices, WORD* indices, int nIndices) override;
+	bool Create(ID3D11Device* device, ID3D11DeviceContext* ctx) override {return false;}
+	bool Create(ID3D11Device* device, ID3D11DeviceContext* ctx, void* vertices, int nVertices, WORD* indices, int nIndices) override;
 	CModel()
 		: vertexBuffer(nullptr)
 		, indexBuffer(nullptr)
