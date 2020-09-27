@@ -1,14 +1,14 @@
-#include "Overlay.h"
+#include "Walls.h"
 #include "Font.h"
 
-bool CTextOverlay::Create(ID3D11Device* device, ID3D11DeviceContext* ctx)
+bool CWalls::Create(ID3D11Device* device, ID3D11DeviceContext* ctx)
 {
 	devctx = ctx;
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	memset(&vertexBufferDesc, 0, sizeof(D3D11_BUFFER_DESC));
 
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.ByteWidth = sizeof(Vertex2D) * 4 * SIZE;
+	vertexBufferDesc.ByteWidth = sizeof(VertexPosNormCol) * 4 * SIZE;
 	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 
@@ -52,27 +52,21 @@ bool CTextOverlay::Create(ID3D11Device* device, ID3D11DeviceContext* ctx)
 	return true;
 }
 
-bool CTextOverlay::AddRect(const float2& p0, const float2& p1, const float2& t0, const float2& t1, uint32_t col)
+bool CWalls::AddWall(const float2& p0, const float2& p1)
 {
-	vb[count * 4].pos = { p0.x,p0.y };
-	vb[count * 4 + 1].pos = { p1.x,p0.y };
-	vb[count * 4 + 2].pos = { p0.x,p1.y };
-	vb[count * 4 + 3].pos = { p1.x,p1.y };
-	vb[count * 4].uv = { t0.x,t0.y };
-	vb[count * 4 + 1].uv = { t1.x,t0.y };
-	vb[count * 4 + 2].uv = { t0.x,t1.y };
-	vb[count * 4 + 3].uv = { t1.x,t1.y };
-	float4 color = { (col & 0xffu) / 255.f,((col >> 8u) & 0xffu) / 255.f,((col >> 16u) & 0xffu) / 255.f,((col >> 24u) & 0xffu) / 255.f };
-	vb[count * 4].col = vb[count * 4 + 1].col = vb[count * 4 + 2].col = vb[count * 4 + 3].col = color;
+	vb[count * 4].pos = { p0.x,p0.y,.1 };
+	vb[count * 4 + 1].pos = { p1.x,p1.y,.1 };
+	vb[count * 4 + 2].pos = { p0.x,p0.y,0 };
+	vb[count * 4 + 3].pos = { p1.x,p1.y,0 };
 	count++;
 	return false;
 }
 
-void CTextOverlay::Commit()
+void CWalls::Commit()
 {
 	D3D11_MAPPED_SUBRESOURCE resource;
 	devctx->Map(vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
-	memcpy(resource.pData, &vb[0], count * sizeof(Vertex2D) * 4);
+	memcpy(resource.pData, &vb[0], count * sizeof(VertexPosNormCol) * 4);
 	devctx->Unmap(vertexBuffer, 0);
 	committed = count;
 	count = 0;

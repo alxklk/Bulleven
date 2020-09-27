@@ -8,24 +8,20 @@ cbuffer buf : register(b0)
 struct AppData
 {
 	float3 position : POSITION;
-	float3 normal: NORMAL;
-	float3 col: TEXCOORD0;
+	float2 uv: TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
-	float4 color : COLOR;
 	float3 pos : TEXCOORD0;
-	float3 norm: TEXCOORD1;
 	float4 position : SV_POSITION;
 };
 
 VertexShaderOutput main(AppData i)
 {
 	VertexShaderOutput o;
-	o.position=transform(wm, i.position);
-	o.color=float4(i.col, 1.0f);
+	float3 p=i.position+float3(i.uv,0)*0.01;
+	o.position=transform(wm, p);
 	o.pos=i.position.xyz;
-	o.norm=mul(wm,i.normal);
 	return o;
 }

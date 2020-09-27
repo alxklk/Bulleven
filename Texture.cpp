@@ -23,11 +23,11 @@ bool CTexture::Create(ID3D11Device* device, int width, int height, const unsigne
 
 	D3D11_SUBRESOURCE_DATA srd;
 	srd.pSysMem = data;
-	srd.SysMemPitch = width*4;
+	srd.SysMemPitch = width * 4;
 	srd.SysMemSlicePitch = 0;
 
 	result = device->CreateTexture2D(&textureDesc, &srd, &texture);
-	if(FAILED(result))
+	if (FAILED(result))
 	{
 		printf("FAILed to create Texture\n");
 		return false;
@@ -39,7 +39,7 @@ bool CTexture::Create(ID3D11Device* device, int width, int height, const unsigne
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
 	result = device->CreateShaderResourceView(texture, &shaderResourceViewDesc, &shaderResourceView);
-	if(FAILED(result))
+	if (FAILED(result))
 	{
 		printf("FAILed to create ShaderResource view\n");
 		return false;

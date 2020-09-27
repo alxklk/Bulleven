@@ -4,13 +4,6 @@
 #include "MinMath.h"
 #include <d3d11_1.h>
 
-struct VertexPosNormCol
-{
-	float3 pos;
-	float3 normal;
-	float3 col;
-};
-
 class CModel : public CBaseModel
 {
 	ID3D11Buffer* vertexBuffer;

@@ -8,12 +8,20 @@ struct float2
 	float2(const float& _x, const float& _y):x(_x),y(_y){}
 };
 
+inline float2 operator+(const float2& l, const float2& r){return {l.x+r.x, l.y+r.y};}
+inline float2 operator-(const float2& l, const float2& r){return {l.x-r.x, l.y-r.y};}
+template<typename T>float2 operator*(const float2& l, const T& r){return {l.x*r, l.y*r};}
+template<typename T>float2 operator*=(float2& l, const T& r){l.x*=r;l.y*=r;return l;}
+inline float2 operator+=(float2& l, const float2& r){l.x+=r.x;l.y+=r.y;return l;}
+
 struct float3
 {
 	float x;
 	float y;
 	float z;
+	float3() = default;
 	float3(const float& _x, const float& _y, const float& _z):x(_x),y(_y),z(_z){}
+	float2 xy()const{return {x,y};}
 };
 
 struct float4
@@ -22,6 +30,7 @@ struct float4
 	float y;
 	float z;
 	float w;
+	float4() = default;
 	float4(const float& _x, const float& _y, const float& _z, const float& _w)
 		:x(_x),y(_y),z(_z),w(_w){}
 };

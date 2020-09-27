@@ -23,7 +23,8 @@ struct VertexShaderOutput
 VertexShaderOutput main(AppData i)
 {
 	VertexShaderOutput o;
-	o.position=transform(wm, i.position);
+	float3 p=i.position;
+	o.position=transform(wm, p);
 	o.color=float4(i.col, 1.0f);
 	o.pos=i.position.xyz;
 	o.norm=mul(wm,i.normal);

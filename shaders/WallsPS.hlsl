@@ -11,5 +11,6 @@ struct PixelShaderInput
 
 float4 main( PixelShaderInput i ) : SV_TARGET
 {
+	return float4(float3(.5,.7,.8)*sqrt(i.pos.z*10.),1);
 	return i.color;
 }

@@ -4,10 +4,19 @@ set(PRJNAME Bullet)
 
 project(${PRJNAME})
 
+include_directories(../03rd/boost)
+
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(${PRJNAME}
-	Main.cpp Model.cpp Renderer.cpp Texture.cpp Scene.cpp Overlay.cpp
+	Main.cpp
+	Model.cpp
+	Renderer.cpp
+	Texture.cpp
+	Scene.cpp
+	Overlay.cpp
+	Walls.cpp
+	Bullets.cpp
 )
 
 target_link_libraries(${PRJNAME}
