@@ -24,6 +24,7 @@ public:
 	virtual int GetIndexCount()const { return committed * 6; };
 	virtual int GetVertexStride()const { return sizeof(VertexPosNormCol); }
 	virtual bool GetZEnabled()const { return true; };
+	virtual bool GetZWriteEnabled()const override{ return true; };
 	virtual bool GetAlphaEnabled()const { return false; };
 	virtual const char* GetShaderSetup()const { return "walls"; }
 	virtual ID3D11ShaderResourceView* GetTextureView(int n)const{return nullptr;}

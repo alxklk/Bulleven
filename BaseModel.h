@@ -33,6 +33,7 @@ public:
 	virtual int GetIndexCount()const = 0;
 	virtual int GetVertexStride()const = 0;
 	virtual bool GetZEnabled()const = 0;
+	virtual bool GetZWriteEnabled()const = 0;
 	virtual bool GetAlphaEnabled()const = 0;
 	virtual const char* GetShaderSetup()const = 0;
 	virtual ID3D11ShaderResourceView* GetTextureView(int n)const = 0;

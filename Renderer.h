@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model.h"
+#include "BaseModel.h"
 #include "Scene.h"
 
 #include <map>
@@ -26,14 +26,15 @@ class CRenderer
 	ID3D11Texture2D* d3dDepthStencilBuffer;
 
 	ID3D11DepthStencilState* d3dDepthStencilStateOff;
-	ID3D11DepthStencilState* d3dDepthStencilStateOn;
+	ID3D11DepthStencilState* d3dDepthStencilStateRW;
+	ID3D11DepthStencilState* d3dDepthStencilStateRO;
 	ID3D11BlendState* d3dBlendStateOff;
 	ID3D11BlendState* d3dBlendStateOn;
 	ID3D11RasterizerState* d3dRasterizerState;
 	ID3D11SamplerState* d3dSamplerState;
 	D3D11_VIEWPORT Viewport;
 
-	void RenderModel(CModel* model);
+	void RenderModel(CBaseModel* model);
 
 	typedef std::map<std::string, SShaderSetup*> TShaderSterupMap;
 	TShaderSterupMap shaderSetupMap;
@@ -80,7 +81,8 @@ public:
 		, d3dDepthStencilView(nullptr)
 		, d3dDepthStencilBuffer(nullptr)
 		, d3dDepthStencilStateOff(nullptr)
-		, d3dDepthStencilStateOn(nullptr)
+		, d3dDepthStencilStateRW(nullptr)
+		, d3dDepthStencilStateRO(nullptr)
 		, d3dRasterizerState(nullptr)
 		, debug(false)
 	{

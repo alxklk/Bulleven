@@ -4,7 +4,7 @@
 #include "MinMath.h"
 #include <d3d11_1.h>
 
-class CModel : public CBaseModel
+class CFloor : public CBaseModel
 {
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
@@ -13,7 +13,7 @@ class CModel : public CBaseModel
 public:
 	bool Create(ID3D11Device* device, ID3D11DeviceContext* ctx) override {return false;}
 	bool Create(ID3D11Device* device, ID3D11DeviceContext* ctx, void* vertices, int nVertices, WORD* indices, int nIndices) override;
-	CModel()
+	CFloor()
 		: vertexBuffer(nullptr)
 		, indexBuffer(nullptr)
 		, indexCount(0)
@@ -26,9 +26,10 @@ public:
 	int GetIndexCount()const override{return indexCount;};
 	int GetVertexStride()const override{ return sizeof(VertexPosNormCol); }
 	bool GetZEnabled()const override{ return true; };
+	bool GetZWriteEnabled()const override{ return true; };
 	bool GetAlphaEnabled()const override{ return false; };
 	const char* GetShaderSetup()const override{ return "model"; }
 	ID3D11ShaderResourceView* GetTextureView(int n)const override{return textures[n];}
 	void SetTextureView(int n, ID3D11ShaderResourceView* textureView) override{textures[n]=textureView;}
-	~CModel() override = default;
+	~CFloor() override = default;
 };

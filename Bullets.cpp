@@ -1,5 +1,4 @@
 #include "Bullets.h"
-#include "Font.h"
 
 bool CBullets::Create(ID3D11Device* device, ID3D11DeviceContext* ctx)
 {

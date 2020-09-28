@@ -1,7 +1,7 @@
-#include "Model.h"
+#include "Floor.h"
 #include <stdio.h>
 
-bool CModel::Create(ID3D11Device* device, ID3D11DeviceContext* ctx, void* vertices, int nVertices, WORD* indices, int nIndices)
+bool CFloor::Create(ID3D11Device* device, ID3D11DeviceContext* ctx, void* vertices, int nVertices, WORD* indices, int nIndices)
 {
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	memset(&vertexBufferDesc, 0, sizeof(D3D11_BUFFER_DESC));

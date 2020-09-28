@@ -5,12 +5,14 @@
 #include "Renderer.h"
 #include "Texture.h"
 #include "WinUI.h"
-#include "Overlay.h"
+#include "BaseModel.h"
+#include "Floor.h"
 #include "Walls.h"
 #include "Bullets.h"
 #include "Font.h"
-#include "BaseModel.h"
+#include "Overlay.h"
 #include "../Bullimar/BulletMan.h"
+#include "Camera.h"
 #include "rand.h"
 #include <windows.h>
 #include <stdio.h>
@@ -18,6 +20,7 @@
 
 CBulletMan bm;
 float btime=0;
+CCamera cam;
 
 struct SAppState
 {
@@ -31,7 +34,7 @@ public:
 	SMouseEvent lastMouseEvent;
 
 	SAppState()
-		: width(900)
+		: width(1600)
 		, height(900)
 		, quitRequested(false)
 		, reloadShaders(true)
@@ -120,10 +123,20 @@ int main(int argc, char* argv[])
 
 	SetWindowLongPtr(gAppState.win, GWLP_USERDATA, (LONG_PTR) & (gAppState));
 
+
+	cam.SetLookAt({0,0,0});
+	cam.SetPos({-3,-3,3});
+	cam.SetWH(gAppState.width,gAppState.height);
+	cam.SetFov(0.6);
+	cam.SetProjMode();
+	cam.m_Far=10;
+	cam.m_Near=.1;
+	cam.CalcVPM();
+
 	{
 		CLehmerRand rnd;
 		rnd.SetSeed(37087534);
-		for(int i=0;i<1000;i++)
+		for(int i=0;i<4000;i++)
 		{
 			float2 p0(rnd.F(),rnd.F());
 			p0*=600;
@@ -132,7 +145,7 @@ int main(int argc, char* argv[])
 			bm.walls.push_back({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
 		}
 		rnd.SetSeed(1127741);
-		for(int i=0;i<1000;i++)
+		for(int i=0;i<40;i++)
 		{
 			float2 p(rnd.F(),rnd.F());
 			p*=600;
@@ -184,7 +197,7 @@ int main(int argc, char* argv[])
 
 	static unsigned short ib[6] = { 0,1,2,2,1,3 };
 
-	CBaseModel* floor = new CModel;
+	CBaseModel* floor = new CFloor;
 	floor->Create(renderer->GetDevice(), renderer->GetDeviceContext(),
 		(VertexPosNormCol*)vb, sizeof(vb) / sizeof(VertexPosNormCol),
 		ib, sizeof(ib) / sizeof(unsigned short)
@@ -208,7 +221,7 @@ int main(int argc, char* argv[])
 	scene->AddModel(text);
 
 	double time = GetTime();
-	TAvg<double, 10> avgFps;
+	TAvg<double, 100> avgFps;
 	bool first = true;
 	while (1)
 	{
@@ -266,7 +279,6 @@ int main(int argc, char* argv[])
 		static struct S_CBModel
 		{
 			float4x4 wm;
-			S_CBModel() { wm = float4x4::Identity(); }
 		}cb_model;
 
 		if (gAppState.lastMouseEvent.frame == gAppState.frameStamp)
@@ -276,13 +288,15 @@ int main(int argc, char* argv[])
 				float dy = gAppState.lastMouseEvent.delta_y / 20.0f;
 				float dx = gAppState.lastMouseEvent.delta_x / 20.0f;
 
-				float l = (float)(dx * dx + dy * dy);
-
-				float4 rotQuat((float)(-dy * sin(l)), (float)(dx * sin(l)), 0, float(cos(l)));
-				float4x4 rotMat;
-				QuaternionToMatrix(rotQuat, rotMat);
-				cb_model.wm = cb_model.wm * rotMat;
+				//float l = (float)(dx * dx + dy * dy);
+				//float4 rotQuat((float)(-dy * sin(l)), (float)(dx * sin(l)), 0, float(cos(l)));
+				//float4x4 rotMat;
+				//QuaternionToMatrix(rotQuat, rotMat);
+				//cb_model.wm = cb_model.wm * rotMat;
+				cam.Rotate(dx,dy);
+				cam.CalcVPM();
 			}
+			cb_model.wm = cam.GetVPM();
 		}
 		renderer->UseShaderSetup("model");
 		renderer->UpdateShaderConstants((void*)&cb_model);
@@ -290,6 +304,28 @@ int main(int argc, char* argv[])
 		renderer->UpdateShaderConstants((void*)&cb_model);
 		renderer->UseShaderSetup("bullets");
 		renderer->UpdateShaderConstants((void*)&cb_model);
+
+		for(int i=0;i<bm.walls.size();i++)
+		{
+			CBulletMan::Wall& w=bm.walls[i];
+			walls->AddWall({ w.end0.x/400-1, w.end0.y/400-1 }, { w.end1.x/400-1, w.end1.y/400-1 });
+		}
+		walls->Commit();
+
+		int bulletsN=0;
+		for(int i=0;i<bm.activeBullets.size();i++)
+		{
+			const CBulletMan::Bullet& b=bm.activeBullets[i];
+			if((b.startTime<=btime)&&(b.endTime>btime))
+			{
+				float2 pos={b.pos.x,b.pos.y};
+				float2 dir={b.dir.x,b.dir.y};
+				pos=pos+dir*(btime-b.startTime);
+				bullets->AddBullet({ pos.x/400-1, pos.y/400-1,.08f });
+				bulletsN++;
+			}
+		}
+		bullets->Commit();
 
 		if (!first)
 			avgFps.Add(1.0 / deltaT);
@@ -300,48 +336,9 @@ int main(int argc, char* argv[])
 		AddOverlayTextLine(text, s, 0, 0, 0xff8080ff);
 		sprintf(s, "FPS: %f", 1. / deltaT);
 		AddOverlayTextLine(text, s, 0, 16);
-		AddOverlayTextLine(text, "QUICK BROWN FOX JUMPS OVER THE LAZY DOG !&^#$%&#$%<>-=+", 0, 32);
-		AddOverlayTextLine(text, "quick brown fox jumps over the lazy dog ? 0123456789{}()", 0, 48);
+		sprintf(s, "walls: %i bullets: %i/%i", bm.walls.size(), bulletsN, bm.activeBullets.size());
+		AddOverlayTextLine(text, s, 0, 32);
 		text->Commit();
-		/*
-		for (int i = 0; i < 1000; i++)
-		{
-			float x0 = (rand() / float(RAND_MAX) * 2.f - 1.f) * 0.8f;
-			float y0 = (rand() / float(RAND_MAX) * 2.f - 1.f) * 0.8f;
-			float x1 = x0 + (rand() / float(RAND_MAX) * 2.f - 1.f) * 0.2f;
-			float y1 = y0 + (rand() / float(RAND_MAX) * 2.f - 1.f) * 0.2f;
-			walls->AddWall({ x0,y0 }, { x1,y1 });
-		}
-		walls->Commit();
-
-		for (int i = 0; i < 1000; i++)
-		{
-			float x = (rand() / float(RAND_MAX) * 2.f - 1.f) * 0.9f;
-			float y = (rand() / float(RAND_MAX) * 2.f - 1.f) * 0.9f;
-			bullets->AddBullet({ x,y,0.2 });
-		}
-		bullets->Commit();
-		*/
-
-		for(int i=0;i<bm.walls.size();i++)
-		{
-			CBulletMan::Wall& w=bm.walls[i];
-			walls->AddWall({ w.end0.x/400-1, w.end0.y/400-1 }, { w.end1.x/400-1, w.end1.y/400-1 });
-		}
-		walls->Commit();
-
-		for(int i=0;i<bm.activeBullets.size();i++)
-		{
-			const CBulletMan::Bullet& b=bm.activeBullets[i];
-			if((b.startTime<=btime)&&(b.endTime>btime))
-			{
-				float2 pos={b.pos.x,b.pos.y};
-				float2 dir={b.dir.x,b.dir.y};
-				pos=pos+dir*(btime-b.startTime);
-				bullets->AddBullet({ pos.x/400-1, pos.y/400-1,.08 });
-			}
-		}
-		bullets->Commit();
 
 		renderer->RenderScene(scene);
 

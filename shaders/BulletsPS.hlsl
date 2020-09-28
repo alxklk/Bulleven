@@ -3,13 +3,14 @@ SamplerState sam : register(s0);
 
 struct PixelShaderInput
 {
-	float4 color : COLOR;
-	float3 pos : TEXCOORD0;
-	float3 norm: TEXCOORD1;
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+	float3 col : TEXCOORD1;
 };
 
 
 float4 main( PixelShaderInput i ) : SV_TARGET
 {
-	return float4(1,1,0,1);
+	float a=saturate(1-length(i.uv.xy));
+	return float4(1,a*1.5,a*a*a*1.3,a*2.);
 }

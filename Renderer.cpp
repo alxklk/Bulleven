@@ -131,7 +131,13 @@ bool CRenderer::Init(HWND win)
 	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
 	depthStencilStateDesc.StencilEnable = FALSE;
-	hr = d3dDevice->CreateDepthStencilState(&depthStencilStateDesc, &d3dDepthStencilStateOn);
+	hr = d3dDevice->CreateDepthStencilState(&depthStencilStateDesc, &d3dDepthStencilStateRW);
+
+	depthStencilStateDesc.DepthEnable = TRUE;
+	depthStencilStateDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthStencilStateDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthStencilStateDesc.StencilEnable = FALSE;
+	hr = d3dDevice->CreateDepthStencilState(&depthStencilStateDesc, &d3dDepthStencilStateRO);
 
 	{
 		D3D11_BLEND_DESC blendStateDescOff;
@@ -245,11 +251,7 @@ bool CRenderer::UpdateShaderConstants(void* constantBuffer)
 
 void CRenderer::RenderScene(CScene* scene)
 {
-	int x = 0;
-	int y = 0;
-	float clearColor[4] = { 0.2f,
-		0.2f + 0.1f * (y & 0xff) / 255.0f,
-		0.2f + 0.1f * (x & 0xff) / 255.0f, 1 };
+	float clearColor[4] = { 0.2f, 0.4f, 0.7f, 1 };
 	float clearDepth = 1.0f;
 	UINT8 clearStencil = 0;
 	d3dDeviceContext->ClearRenderTargetView(d3dRenderTargetView, clearColor);
@@ -293,7 +295,12 @@ void CRenderer::RenderScene(CScene* scene)
 			}
 
 			if (model->GetZEnabled())
-				d3dDeviceContext->OMSetDepthStencilState(d3dDepthStencilStateOn, 0);
+			{
+				if(model->GetZWriteEnabled())
+					d3dDeviceContext->OMSetDepthStencilState(d3dDepthStencilStateRW, 0);
+				else 
+					d3dDeviceContext->OMSetDepthStencilState(d3dDepthStencilStateRO, 0);
+			}
 			else
 				d3dDeviceContext->OMSetDepthStencilState(d3dDepthStencilStateOff, 0);
 
@@ -324,7 +331,8 @@ bool CRenderer::Done()
 	SafeRelease(d3dDepthStencilBuffer);
 
 	SafeRelease(d3dDepthStencilStateOff);
-	SafeRelease(d3dDepthStencilStateOn);
+	SafeRelease(d3dDepthStencilStateRO);
+	SafeRelease(d3dDepthStencilStateRW);
 	SafeRelease(d3dRasterizerState);
 	SafeRelease(d3dSamplerState);
 

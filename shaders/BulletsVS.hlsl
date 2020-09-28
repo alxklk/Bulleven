@@ -13,15 +13,18 @@ struct AppData
 
 struct VertexShaderOutput
 {
-	float3 pos : TEXCOORD0;
 	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
 };
 
 VertexShaderOutput main(AppData i)
 {
 	VertexShaderOutput o;
-	float3 p=i.position+float3(i.uv,0)*0.01;
+	float3 p=i.position;
 	o.position=transform(wm, p);
-	o.pos=i.position.xyz;
+	float h=length(float3(wm._m00,wm._m01,wm._m02));
+	float w=length(float3(wm._m10,wm._m11,wm._m12));
+	o.position.xy+=float2(i.uv)*float2(1,w/h)*0.02;
+	o.uv=i.uv;
 	return o;
 }

@@ -25,6 +25,7 @@ public:
 	virtual int GetIndexCount()const { return committed * 6; };
 	virtual int GetVertexStride()const { return sizeof(Vertex2D); }
 	virtual bool GetZEnabled()const { return false; };
+	virtual bool GetZWriteEnabled()const override{ return false; };
 	virtual bool GetAlphaEnabled()const { return true; };
 	virtual const char* GetShaderSetup()const{return "overlay";}
 	virtual ID3D11ShaderResourceView* GetTextureView(int n)const

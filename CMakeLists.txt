@@ -10,13 +10,14 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(${PRJNAME}
 	Main.cpp
-	Model.cpp
+	Floor.cpp
 	Renderer.cpp
 	Texture.cpp
 	Scene.cpp
 	Overlay.cpp
 	Walls.cpp
 	Bullets.cpp
+	Camera.cpp
 )
 
 target_link_libraries(${PRJNAME}
