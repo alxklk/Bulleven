@@ -18,6 +18,5 @@ VertexShaderOutput main(AppData IN)
 	OUT.pos = float4(IN.pos, 0.0f, 1.0f);
 	OUT.uv = IN.uv;
 	OUT.col = IN.col;
-	//OUT.col = float4(1,.5,0,.75);
 	return OUT;
 }

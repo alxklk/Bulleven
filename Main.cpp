@@ -21,6 +21,7 @@
 CBulletMan bm;
 float btime=0;
 CCamera cam;
+HANDLE threadHandle=INVALID_HANDLE_VALUE;
 
 struct SAppState
 {
@@ -44,6 +45,149 @@ public:
 	}
 
 }gAppState;
+
+void testScenario1()
+{
+	if(threadHandle!=INVALID_HANDLE_VALUE)
+	{
+		TerminateThread(threadHandle,0);
+		threadHandle=INVALID_HANDLE_VALUE;
+	};
+	btime=0;
+	bm.Clear();
+	void* data=nullptr;
+	CLehmerRand rnd;
+	rnd.SetSeed(37087534);
+	for(int i=0;i<1000;i++)
+	{
+		float2 p0(rnd.F(),rnd.F());
+		p0*=600;
+		p0+=float2(100,100);
+		float2 p1=p0+float2(rnd.F(),rnd.F())*200-float2(100,100);
+		bm.walls.push_back({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
+	}
+	threadHandle=CreateThread(0,65536,[](void*)->DWORD
+	{
+		CLehmerRand rnd;
+		rnd.SetSeed(1127741);
+		for(;;)
+		{
+			for(int i=0;i<25;i++)
+			{
+				float2 p(rnd.F(),rnd.F());
+				p*=600;
+				p+=float2(100,100);
+				float2 d=float2(rnd.N10(),rnd.N10());
+				bm.Fire(flt3(p.x,p.y,0),flt3(d.x,d.y,0).norm(),100+rnd.F()*100,btime+1+rnd.F()*5,1.5);
+			}
+			Sleep(16);
+		}
+	}
+	,data,0,0);
+	bm.Update(0);
+}
+
+void testScenario2()
+{
+	if(threadHandle!=INVALID_HANDLE_VALUE)
+	{
+		TerminateThread(threadHandle,0);
+		threadHandle=INVALID_HANDLE_VALUE;
+	};
+	btime=0;
+	bm.Clear();
+	void* data=nullptr;
+	CLehmerRand rnd;
+	rnd.SetSeed(37087534);
+	for(int i=0;i<200;i++)
+	{
+		float2 p0(rnd.F(),rnd.F());
+		p0*=600;
+		p0+=float2(100,100);
+		float2 p1=p0+float2(rnd.F(),rnd.F())*200-float2(100,100);
+		bm.walls.push_back({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
+	}
+	rnd.SetSeed(1127741);
+	for(int i=0;i<200;i++)
+	{
+		float2 p(rnd.F(),rnd.F());
+		p*=600;
+		p+=float2(100,100);
+		float2 d=float2(rnd.N10(),rnd.N10());
+		bm.Fire(flt3(p.x,p.y,0),flt3(d.x,d.y,0).norm(),100+rnd.F()*100,rnd.F()*10,2.5);
+	}
+	bm.Update(0);
+}
+
+void testScenario3()
+{
+	if(threadHandle!=INVALID_HANDLE_VALUE)
+	{
+		TerminateThread(threadHandle,0);
+		threadHandle=INVALID_HANDLE_VALUE;
+	};
+	btime=0;
+	bm.Clear();
+	void* data=nullptr;
+	CLehmerRand rnd;
+	rnd.SetSeed(37087534);
+	for(int i=0;i<4000;i++)
+	{
+		float2 p0(rnd.F(),rnd.F());
+		p0*=600;
+		p0+=float2(100,100);
+		float2 p1=p0+float2(rnd.F(),rnd.F())*200-float2(100,100);
+		bm.walls.push_back({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
+	}
+	rnd.SetSeed(1127741);
+	for(int i=0;i<4000;i++)
+	{
+		float2 p(rnd.F(),rnd.F());
+		p*=600;
+		p+=float2(100,100);
+		float2 d=float2(rnd.N10(),rnd.N10());
+		bm.Fire(flt3(p.x,p.y,0),flt3(d.x,d.y,0).norm(),10+rnd.F()*10,rnd.F()*10,10);
+	}
+	bm.Update(0);
+}
+
+void testScenario4()
+{
+	if(threadHandle!=INVALID_HANDLE_VALUE)
+	{
+		TerminateThread(threadHandle,0);
+		threadHandle=INVALID_HANDLE_VALUE;
+	};
+	btime=0;
+	bm.Clear();
+	void* data=nullptr;
+	bm.Fire(flt3(253,242.5,0),flt3(.35,.33,0),300,0.2,1000);
+	bm.Fire(flt3(203,202.5,0),flt3(.35,.33,0),600,0,1000);
+	for(int i=0;i<8;i++)
+	{
+		float x0=100-i*5;
+		float x1=400+i*5;
+		float y0=100-i*5;
+		float y1=400+i*5;
+		bm.walls.push_back({flt2(x0,y0),flt2(x1,y0)});
+		bm.walls.push_back({flt2(x1,y0),flt2(x1,y1)});
+		bm.walls.push_back({flt2(x1,y1),flt2(x0,y1)});
+		bm.walls.push_back({flt2(x0,y1),flt2(x0,y0)});
+	}
+	for(int i=0;i<3;i++)
+	{
+		float x0=50-i*5;
+		float x1=450+i*5;
+		float y0=50-i*5;
+		float y1=450+i*5;
+		bm.walls.push_back({flt2(x0,y0-x0*.1),flt2(x1,y0-x1*.1)});
+		bm.walls.push_back({flt2(x1,y0-x1*.1),flt2(x1,y1-x1*.1)});
+		bm.walls.push_back({flt2(x1,y1-x1*.1),flt2(x0,y1-x0*.1)});
+		bm.walls.push_back({flt2(x0,y1-x0*.1),flt2(x0,y0-x0*.1)});
+	}
+	bm.Update(0);
+}
+
 
 void stop(HWND hwnd, unsigned int imsg, WPARAM wpar, LPARAM lpar)
 {
@@ -79,6 +223,22 @@ LRESULT CALLBACK wp(HWND hwnd, unsigned int imsg, WPARAM wpar, LPARAM lpar)
 			btime+=1.f/30;
 			bm.Update(btime);
 		}
+		else if (wpar == '1')
+		{
+			testScenario1();
+		}
+		else if (wpar == '2')
+		{
+			testScenario2();
+		}
+		else if (wpar == '3')
+		{
+			testScenario3();
+		}
+		else if (wpar == '4')
+		{
+			testScenario4();
+		}
 	}
 	else if (imsg == WM_KEYUP)
 	{
@@ -103,9 +263,38 @@ void AddOverlayTextLine(CTextOverlay* text, const std::string& s, int x, int y, 
 	}
 }
 
+void PrintUsage(const char* name)
+{
+	printf("Run: %s N\n where N is test scenario\n"
+		" 1 : 100+ walls and add 20+ bullets in parallel each frame (16 ms)\n"
+		" 2 : 100+ walls and 100+ bullets\n"
+		" 3 : 1000+ walls and 1000+ bullets\n"
+		" 4 : Geometry test\n"
+		"   - or press this key while running\n", name
+	);
+}
 
 int main(int argc, char* argv[])
 {
+	if(argc!=2)
+	{
+		PrintUsage(argv[0]);
+	}
+	else
+	{
+		if(!strcmp(argv[1],"1"))
+		{
+			testScenario1();
+		}
+		else if(!strcmp(argv[1],"2"))
+		{
+			testScenario2();
+		}
+		else if(!strcmp(argv[1],"3"))
+		{
+			testScenario3();
+		}
+	}
 
 	HCURSOR arrowCursor = LoadCursor(0, IDC_ARROW);
 
@@ -133,6 +322,7 @@ int main(int argc, char* argv[])
 	cam.m_Near=.1;
 	cam.CalcVPM();
 
+	if(0)
 	{
 		CLehmerRand rnd;
 		rnd.SetSeed(37087534);
@@ -153,6 +343,7 @@ int main(int argc, char* argv[])
 			float2 d=float2(rnd.N10(),rnd.N10());
 			bm.Fire(flt3(p.x,p.y,0),flt3(d.x,d.y,0).norm(),100+rnd.F()*100,rnd.F()*10,5);
 		}
+		testScenario3();
 		bm.Update(0);
 	}
 
@@ -227,6 +418,8 @@ int main(int argc, char* argv[])
 	{
 		double newTime = GetTime();
 		double deltaT = newTime - time;
+		bm.Update(btime);
+		btime+=deltaT;
 		time = newTime;
 		//while (!isPending())
 		//{
@@ -322,6 +515,8 @@ int main(int argc, char* argv[])
 				float2 dir={b.dir.x,b.dir.y};
 				pos=pos+dir*(btime-b.startTime);
 				bullets->AddBullet({ pos.x/400-1, pos.y/400-1,.08f });
+				if(i>8190)
+					break;
 				bulletsN++;
 			}
 		}
