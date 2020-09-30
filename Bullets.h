@@ -7,7 +7,7 @@
 
 class CBullets: public CBaseModel
 {
-	static const int SIZE = 8192;
+	static const int SIZE = 8192*2;
 	int count = 0;
 	int committed = 0;
 	VertexPosUV vb[SIZE * 4];

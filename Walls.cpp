@@ -54,7 +54,7 @@ bool CWalls::Create(ID3D11Device* device, ID3D11DeviceContext* ctx)
 
 void CWalls::AddWall(const float2& p0, const float2& p1)
 {
-	if(count>=SIZE-1)return;
+	if (count >= SIZE - 1)return;
 
 	vb[count * 4].pos = { p0.x,p0.y,.1 };
 	vb[count * 4 + 1].pos = { p1.x,p1.y,.1 };

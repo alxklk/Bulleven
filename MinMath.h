@@ -10,6 +10,16 @@ struct float2
 	float y;
 	float2()=default;
 	float2(const float& _x, const float& _y):x(_x),y(_y){}
+	float lengthSq()const{return x*x+y*y;}
+	float length()const{return sqrt(lengthSq());}
+	float2 perp()const{return float2(y,-x);}
+	float2 norm()const
+	{
+		float l=length();
+		if(l==0){return {0,0};}
+		return{x/l,y/l};
+	}
+
 };
 
 inline float2 operator+(const float2& l, const float2& r){return {l.x+r.x, l.y+r.y};}
@@ -17,6 +27,13 @@ inline float2 operator-(const float2& l, const float2& r){return {l.x-r.x, l.y-r
 template<typename T>float2 operator*(const float2& l, const T& r){return {l.x*r, l.y*r};}
 template<typename T>float2 operator*=(float2& l, const T& r){l.x*=r;l.y*=r;return l;}
 inline float2 operator+=(float2& l, const float2& r){l.x+=r.x;l.y+=r.y;return l;}
+
+inline float vdot(const float2& l,const float2& r){return l.x*r.x+l.y*r.y;}
+
+inline float2 reflect(const float2& r, const float2& n)
+{
+	return n*vdot(n,r)*2.0f-r;
+}
 
 struct float3
 {
@@ -26,6 +43,15 @@ struct float3
 	float3() = default;
 	float3(const float& _x, const float& _y, const float& _z):x(_x),y(_y),z(_z){}
 	float2 xy()const{return {x,y};}
+	float lengthSq()const{return x*x+y*y+z*z;}
+	float length()const{return sqrt(lengthSq());}
+	float3 norm()const
+	{
+		float l=length();
+		if(l==0){return{0,0,0};}
+		return{x/l,y/l,z/l};
+	}
+
 };
 
 inline float3 operator-(const float3& l, const float3& r){return {l.x-r.x, l.y-r.y, l.z-r.z};}
@@ -241,30 +267,30 @@ inline float3 operator* (const float3& x,const float4x4& m)
 	return {r[0],r[1],r[2]};
 }
 
-inline void QuaternionToMatrix(const float4& q, float4x4& m)
+inline bool IntersectRaySection(const float2& r00, const float2& r01,
+	const float2& s10, const float2& s11, float& t)
 {
-	float sqw=q.w*q.w;
-	float sqx=q.x*q.x;
-	float sqy=q.y*q.y;
-	float sqz=q.z*q.z;
-	m.Identity();
+	float2 d0=r01-r00;
+	float2 d1=s11-s10;
 
-	float invs=1.0f/(sqx+sqy+sqz+sqw);
-	m.m[0][0]=( sqx-sqy-sqz+sqw)*invs;
-	m.m[1][1]=(-sqx+sqy-sqz+sqw)*invs;
-	m.m[2][2]=(-sqx-sqy+sqz+sqw)*invs;
+	float a1=-d0.y;
+	float b1= d0.x;
+	float c1=-(a1*r00.x+b1*r00.y);
 
-	float tmp1=q.x*q.y;
-	float tmp2=q.z*q.w;
-	m.m[1][0]=2.0f*(tmp1+tmp2)*invs;
-	m.m[0][1]=2.0f*(tmp1-tmp2)*invs;
+	float a2=-d1.y;
+	float b2= d1.x;
+	float c2=-(a2*s10.x+b2*s10.y);
 
-	tmp1=q.x*q.z;
-	tmp2=q.y*q.w;
-	m.m[2][0]=2.0f*(tmp1-tmp2)*invs;
-	m.m[0][2]=2.0f*(tmp1+tmp2)*invs;
-	tmp1=q.y*q.z;
-	tmp2=q.x*q.w;
-	m.m[2][1]=2.0f*(tmp1+tmp2)*invs;
-	m.m[1][2]=2.0f*(tmp1-tmp2)*invs;
+	float d10=a2*r00.x+b2*r00.y+c2;
+	float d11=a2*r01.x+b2*r01.y+c2;
+
+	float d00=a1*s10.x+b1*s10.y+c1;
+	float d01=a1*s11.x+b1*s11.y+c1;
+
+	if((d10*d11>=0)||(d00*d01>=0))
+		return false;
+
+	t=d10/(d10-d11);
+
+	return true;
 }

@@ -72,8 +72,6 @@ bool CRenderer::Init(HWND win)
 		return false;
 	}
 
-	printf("D3D Device Feature Level %04x\n", featureLevel);
-
 	ID3D11Texture2D* backBuffer;
 	hr = d3dSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
 	if (FAILED(hr))
@@ -106,14 +104,14 @@ bool CRenderer::Init(HWND win)
 	hr = d3dDevice->CreateTexture2D(&depthStencilBufferDesc, nullptr, &d3dDepthStencilBuffer);
 	if (FAILED(hr))
 	{
-		printf("Fail\n");
+		printf("Failed to create texture for DepthStencilBuffer\n");
 		return false;
 	}
 
 	hr = d3dDevice->CreateDepthStencilView(d3dDepthStencilBuffer, nullptr, &d3dDepthStencilView);
 	if (FAILED(hr))
 	{
-		printf("Fail\n");
+		printf("Failed to create DepthStencilView\n");
 		return false;
 	}
 
@@ -173,10 +171,8 @@ bool CRenderer::Init(HWND win)
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	//Create the Sample State
+	//Create the Sampler State
 	hr = d3dDevice->CreateSamplerState(&sampDesc, &d3dSamplerState);
-
-
 
 	D3D11_RASTERIZER_DESC rasterizerDesc;
 	memset(&rasterizerDesc, 0, sizeof(D3D11_RASTERIZER_DESC));
@@ -296,9 +292,9 @@ void CRenderer::RenderScene(CScene* scene)
 
 			if (model->GetZEnabled())
 			{
-				if(model->GetZWriteEnabled())
+				if (model->GetZWriteEnabled())
 					d3dDeviceContext->OMSetDepthStencilState(d3dDepthStencilStateRW, 0);
-				else 
+				else
 					d3dDeviceContext->OMSetDepthStencilState(d3dDepthStencilStateRO, 0);
 			}
 			else

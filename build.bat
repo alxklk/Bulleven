@@ -1,1 +1,1 @@
-g++ -I../03rd/boost Main.cpp Model.cpp Renderer.cpp Texture.cpp Scene.cpp Overlay.cpp Walls.cpp Bullets.cpp -ld3d11 -ld3dcompiler -std=c++17 -O0 
+g++ -I../03rd/boost Main.cpp Floor.cpp Bullets.cpp Walls.cpp Camera.cpp Renderer.cpp Texture.cpp Scene.cpp Overlay.cpp -ld3d11 -ld3dcompiler -std=c++17 -O0 
