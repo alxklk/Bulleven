@@ -29,7 +29,7 @@ public:
 	virtual const char* GetShaderSetup()const { return "bullets"; }
 	virtual ID3D11ShaderResourceView* GetTextureView(int n)const{return nullptr;}
 	virtual void SetTextureView(int n, ID3D11ShaderResourceView* textureView){};
-	bool AddBullet(const float3& p);
+	void AddBullet(const float3& p);
 	void Commit();
 	virtual ~CBullets() = default;
 };

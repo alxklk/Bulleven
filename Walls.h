@@ -29,7 +29,7 @@ public:
 	virtual const char* GetShaderSetup()const { return "walls"; }
 	virtual ID3D11ShaderResourceView* GetTextureView(int n)const{return nullptr;}
 	virtual void SetTextureView(int n, ID3D11ShaderResourceView* textureView){};
-	bool AddWall(const float2& p0, const float2& p1);
+	void AddWall(const float2& p0, const float2& p1);
 	void Commit();
 	virtual ~CWalls() = default;
 };

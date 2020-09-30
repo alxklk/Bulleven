@@ -52,14 +52,15 @@ bool CWalls::Create(ID3D11Device* device, ID3D11DeviceContext* ctx)
 	return true;
 }
 
-bool CWalls::AddWall(const float2& p0, const float2& p1)
+void CWalls::AddWall(const float2& p0, const float2& p1)
 {
+	if(count>=SIZE-1)return;
+
 	vb[count * 4].pos = { p0.x,p0.y,.1 };
 	vb[count * 4 + 1].pos = { p1.x,p1.y,.1 };
 	vb[count * 4 + 2].pos = { p0.x,p0.y,0 };
 	vb[count * 4 + 3].pos = { p1.x,p1.y,0 };
 	count++;
-	return false;
 }
 
 void CWalls::Commit()

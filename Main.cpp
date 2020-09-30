@@ -64,7 +64,7 @@ void testScenario1()
 		p0*=600;
 		p0+=float2(100,100);
 		float2 p1=p0+float2(rnd.F(),rnd.F())*200-float2(100,100);
-		bm.walls.push_back({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
+		bm.AddWall({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
 	}
 	threadHandle=CreateThread(0,65536,[](void*)->DWORD
 	{
@@ -105,7 +105,7 @@ void testScenario2()
 		p0*=600;
 		p0+=float2(100,100);
 		float2 p1=p0+float2(rnd.F(),rnd.F())*200-float2(100,100);
-		bm.walls.push_back({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
+		bm.AddWall({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
 	}
 	rnd.SetSeed(1127741);
 	for(int i=0;i<200;i++)
@@ -137,7 +137,7 @@ void testScenario3()
 		p0*=600;
 		p0+=float2(100,100);
 		float2 p1=p0+float2(rnd.F(),rnd.F())*200-float2(100,100);
-		bm.walls.push_back({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
+		bm.AddWall({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
 	}
 	rnd.SetSeed(1127741);
 	for(int i=0;i<4000;i++)
@@ -169,10 +169,10 @@ void testScenario4()
 		float x1=400+i*5;
 		float y0=100-i*5;
 		float y1=400+i*5;
-		bm.walls.push_back({flt2(x0,y0),flt2(x1,y0)});
-		bm.walls.push_back({flt2(x1,y0),flt2(x1,y1)});
-		bm.walls.push_back({flt2(x1,y1),flt2(x0,y1)});
-		bm.walls.push_back({flt2(x0,y1),flt2(x0,y0)});
+		bm.AddWall({flt2(x0,y0),flt2(x1,y0)});
+		bm.AddWall({flt2(x1,y0),flt2(x1,y1)});
+		bm.AddWall({flt2(x1,y1),flt2(x0,y1)});
+		bm.AddWall({flt2(x0,y1),flt2(x0,y0)});
 	}
 	for(int i=0;i<3;i++)
 	{
@@ -180,10 +180,10 @@ void testScenario4()
 		float x1=450+i*5;
 		float y0=50-i*5;
 		float y1=450+i*5;
-		bm.walls.push_back({flt2(x0,y0-x0*.1),flt2(x1,y0-x1*.1)});
-		bm.walls.push_back({flt2(x1,y0-x1*.1),flt2(x1,y1-x1*.1)});
-		bm.walls.push_back({flt2(x1,y1-x1*.1),flt2(x0,y1-x0*.1)});
-		bm.walls.push_back({flt2(x0,y1-x0*.1),flt2(x0,y0-x0*.1)});
+		bm.AddWall({flt2(x0,y0-x0*.1),flt2(x1,y0-x1*.1)});
+		bm.AddWall({flt2(x1,y0-x1*.1),flt2(x1,y1-x1*.1)});
+		bm.AddWall({flt2(x1,y1-x1*.1),flt2(x0,y1-x0*.1)});
+		bm.AddWall({flt2(x0,y1-x0*.1),flt2(x0,y0-x0*.1)});
 	}
 	bm.Update(0);
 }
@@ -312,7 +312,6 @@ int main(int argc, char* argv[])
 
 	SetWindowLongPtr(gAppState.win, GWLP_USERDATA, (LONG_PTR) & (gAppState));
 
-
 	cam.SetLookAt({0,0,0});
 	cam.SetPos({-3,-3,3});
 	cam.SetWH(gAppState.width,gAppState.height);
@@ -321,31 +320,6 @@ int main(int argc, char* argv[])
 	cam.m_Far=10;
 	cam.m_Near=.1;
 	cam.CalcVPM();
-
-	if(0)
-	{
-		CLehmerRand rnd;
-		rnd.SetSeed(37087534);
-		for(int i=0;i<4000;i++)
-		{
-			float2 p0(rnd.F(),rnd.F());
-			p0*=600;
-			p0+=float2(100,100);
-			float2 p1=p0+float2(rnd.F(),rnd.F())*200-float2(100,100);
-			bm.walls.push_back({flt2(p0.x,p0.y),flt2(p1.x,p1.y)});
-		}
-		rnd.SetSeed(1127741);
-		for(int i=0;i<40;i++)
-		{
-			float2 p(rnd.F(),rnd.F());
-			p*=600;
-			p+=float2(100,100);
-			float2 d=float2(rnd.N10(),rnd.N10());
-			bm.Fire(flt3(p.x,p.y,0),flt3(d.x,d.y,0).norm(),100+rnd.F()*100,rnd.F()*10,5);
-		}
-		testScenario3();
-		bm.Update(0);
-	}
 
 	CRenderer* renderer = new CRenderer;
 	if (!renderer->Init(gAppState.win))
@@ -498,25 +472,21 @@ int main(int argc, char* argv[])
 		renderer->UseShaderSetup("bullets");
 		renderer->UpdateShaderConstants((void*)&cb_model);
 
-		for(int i=0;i<bm.walls.size();i++)
+		for(const auto& w: bm.GetWalls())
 		{
-			CBulletMan::Wall& w=bm.walls[i];
 			walls->AddWall({ w.end0.x/400-1, w.end0.y/400-1 }, { w.end1.x/400-1, w.end1.y/400-1 });
 		}
 		walls->Commit();
 
 		int bulletsN=0;
-		for(int i=0;i<bm.activeBullets.size();i++)
+		for(const auto& b:bm.GetBullets())
 		{
-			const CBulletMan::Bullet& b=bm.activeBullets[i];
 			if((b.startTime<=btime)&&(b.endTime>btime))
 			{
 				float2 pos={b.pos.x,b.pos.y};
 				float2 dir={b.dir.x,b.dir.y};
 				pos=pos+dir*(btime-b.startTime);
 				bullets->AddBullet({ pos.x/400-1, pos.y/400-1,.08f });
-				if(i>8190)
-					break;
 				bulletsN++;
 			}
 		}
@@ -531,7 +501,7 @@ int main(int argc, char* argv[])
 		AddOverlayTextLine(text, s, 0, 0, 0xff8080ff);
 		sprintf(s, "FPS: %f", 1. / deltaT);
 		AddOverlayTextLine(text, s, 0, 16);
-		sprintf(s, "walls: %i bullets: %i/%i", bm.walls.size(), bulletsN, bm.activeBullets.size());
+		sprintf(s, "walls: %i bullets: %i/%i", bm.GetWalls().size(), bulletsN, bm.GetBullets().size());
 		AddOverlayTextLine(text, s, 0, 32);
 		text->Commit();
 

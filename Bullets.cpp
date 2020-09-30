@@ -56,12 +56,12 @@ bool CBullets::Create(ID3D11Device* device, ID3D11DeviceContext* ctx)
 	return true;
 }
 
-bool CBullets::AddBullet(const float3& p)
+void CBullets::AddBullet(const float3& p)
 {
+	if(count>=SIZE-1)return;
 	vb[count * 4].pos = vb[count * 4 + 1].pos =
 		vb[count * 4 + 2].pos = vb[count * 4 + 3].pos = p;
 	count++;
-	return false;
 }
 
 void CBullets::Commit()
